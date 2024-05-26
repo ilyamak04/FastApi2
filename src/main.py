@@ -1,7 +1,18 @@
+from contextlib import asynccontextmanager
 from typing import Annotated
 from fastapi import FastAPI, Query, Path
 from fastapi.middleware.cors import CORSMiddleware
 from src.users.router import user_router
+from src.models import Base
+from src.database import db_helper
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with db_helper.engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+
 
 app = FastAPI(
     docs_url="/docs",
@@ -40,4 +51,4 @@ app.add_middleware(
 if __name__ == "__name__":
     import uvicorn
 
-    uvicorn.run("main:app", reload=True)
+    uvicorn.run("src.main:app", reload=True)
