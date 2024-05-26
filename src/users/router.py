@@ -1,11 +1,12 @@
 from fastapi import APIRouter
-from users.schemas import CreateUser
-from users.service import create_user
+
+from src.users.schemas import CreateUserORM
+from src.users.service import create_user
 
 
-router = APIRouter(prefix="/users")
+user_router = APIRouter(prefix="/users")
 
 
-@router.post("")
-def create_user(user: CreateUser):
+@user_router.post("/")
+def create_user_view(user: CreateUserORM):
     return create_user(user)
