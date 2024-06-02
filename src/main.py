@@ -7,19 +7,19 @@ from src.models import Base
 from src.database import db_helper
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    async with db_helper.engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    yield
-
-
 app = FastAPI(
     docs_url="/docs",
     openapi_url="/openapi.json",
     redoc_url=None,
 )
 app.include_router(user_router)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with db_helper.engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
 
 
 @app.get("/items/")
@@ -51,4 +51,4 @@ app.add_middleware(
 if __name__ == "__name__":
     import uvicorn
 
-    uvicorn.run("src.main:app", reload=True)
+    uvicorn.run("src.main:app", reload=True, port=8005)
