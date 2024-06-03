@@ -8,14 +8,12 @@ from src.models import Base
 from src.database import db_helper
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    async with db_helper.engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    yield
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#   yield
 
 
-app = FastAPI(docs_url="/docs", openapi_url="/openapi.json", lifespan=lifespan)
+app = FastAPI(docs_url="/docs", openapi_url="/openapi.json")  # , lifespan=lifespan)
 app.include_router(user_router)
 app.include_router(product_router)
 
