@@ -3,16 +3,9 @@ from typing import Annotated
 from fastapi import FastAPI, Query, Path
 from fastapi.middleware.cors import CORSMiddleware
 from src.users.router import user_router
+from src.products.router import router as product_router
 from src.models import Base
 from src.database import db_helper
-
-
-app = FastAPI(
-    docs_url="/docs",
-    openapi_url="/openapi.json",
-    redoc_url=None,
-)
-app.include_router(user_router)
 
 
 @asynccontextmanager
@@ -20,6 +13,11 @@ async def lifespan(app: FastAPI):
     async with db_helper.engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
+
+
+app = FastAPI(docs_url="/docs", openapi_url="/openapi.json", lifespan=lifespan)
+app.include_router(user_router)
+app.include_router(product_router)
 
 
 @app.get("/items/")
