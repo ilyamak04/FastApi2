@@ -4,7 +4,7 @@ from src.database import db_helper
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.engine import Result
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 
 def create_user(user_in: CreateUserORM):
@@ -44,3 +44,42 @@ async def create_posts(
     session.add_all(posts)
     await session.commit()
     return posts
+
+
+async def get_users_with_posts(session: AsyncSession):
+    # query = select(User).options(joinedload(User.posts)).order_by(User.id)
+    query = select(User).options(selectinload(User.posts)).order_by(User.id)
+    result: Result = await session.execute(query)
+    # users = result.unique.scalars()
+    users = result.scalars()
+    # users = await session.scalars(query)
+    return users
+
+
+async def get_porfile_with_users_and_users_with_posts(session: AsyncSession):
+    query = (
+        select(Profile)
+        .join(Profile.user)
+        .options(
+            joinedload(Profile.user).selectinload(User.posts),
+        )
+        .where(User.username == "john")
+        .order_by(Profile.id)
+    )
+    profiles = await session.scalars(query)
+    return profiles
+
+
+async def get_users_with_posts_and_profiles(
+    session: AsyncSession,
+):
+    query = (
+        select(User)
+        .options(
+            joinedload(User.profile),
+            selectinload(User.posts),
+        )
+        .order_by(User.id)
+    )
+    users = await session.scalars(query)
+    return users
