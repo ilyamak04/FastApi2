@@ -6,7 +6,7 @@ from src.users.router import user_router
 from src.products.router import router as product_router
 from src.models import Base
 from src.database import db_helper
-
+from src.auth.router import router as demo_auth_router
 
 # @asynccontextmanager
 # async def lifespan(app: FastAPI):
@@ -16,6 +16,7 @@ from src.database import db_helper
 app = FastAPI(docs_url="/docs", openapi_url="/openapi.json")  # , lifespan=lifespan)
 app.include_router(user_router)
 app.include_router(product_router)
+app.include_router(router=demo_auth_router)
 
 
 @app.get("/items/")
