@@ -1,8 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.users.models import Product
+from src.products.models import Product, Order, OrderProductAssociation
 from sqlalchemy import select
 from sqlalchemy.engine import Result
 from src.products.schemas import ProductCreate, ProductUpdate, ProductUpdatePartial
+from sqlalchemy.orm import joinedload, selectinload
 
 
 async def get_products(session: AsyncSession) -> list[Product]:
@@ -44,3 +45,18 @@ async def delete_product(
 ) -> None:
     await session.delete(product)
     await session.commit()
+
+
+async def get_order_with_with_product_assoc(session: AsyncSession) -> list[Order]:
+    query = (
+        select(Order)
+        .options(
+            selectinload(Order.products_details).joinedload(
+                OrderProductAssociation.product
+            ),
+        )
+        .order_by(Order.id)
+    )
+    orders = await session.scalars(query)
+
+    return list(orders)
